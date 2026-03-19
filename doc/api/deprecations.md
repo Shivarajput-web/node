@@ -4175,7 +4175,7 @@ Type: Documentation-only
 `process.features.tls_alpn`, `process.features.tls_ocsp`, and `process.features.tls_sni` are
 deprecated, as their values are guaranteed to be identical to that of `process.features.tls`.
 
-### DEP0190: Passing `args` to `node:child_process` `execFile`/`spawn` with `shell` option `true`
+### DEP0190: Passing `args` to `node:child_process` `execFile`/`spawn` with `shell` option
 
 <!-- YAML
 changes:
@@ -4192,7 +4192,8 @@ changes:
 Type: Runtime
 
 When an `args` array is passed to [`child_process.execFile`][] or [`child_process.spawn`][] with the option
-`{ shell: true }`, the values are not escaped, only space-separated, which can lead to shell injection.
+`{ shell: true }` or `{ shell: '/path/to/shell' }`, the values are not escaped, only space-separated,
+which can lead to shell injection.
 
 ### DEP0191: `repl.builtinModules`
 
@@ -4430,12 +4431,15 @@ import { opendir } from 'node:fs/promises';
 
 <!-- YAML
 changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/62173
+    description: Runtime deprecation.
   - version: v25.7.0
     pr-url: https://github.com/nodejs/node/pull/61632
     description: Documentation-only deprecation.
 -->
 
-Type: Documentation-only
+Type: Runtime
 
 Passing the `type` option to [`Duplex.toWeb()`][] is deprecated. To specify the
 type of the readable half of the constructed readable-writable pair, use the

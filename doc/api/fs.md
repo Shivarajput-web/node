@@ -1709,6 +1709,10 @@ Removes files and directories (modeled on the standard POSIX `rm` utility).
 <!-- YAML
 added: v10.0.0
 changes:
+  - version: v25.7.0
+    pr-url: https://github.com/nodejs/node/pull/61178
+    description: Accepts a `throwIfNoEntry` option to specify whether
+                 an exception should be thrown if the entry does not exist.
   - version: v10.5.0
     pr-url: https://github.com/nodejs/node/pull/20220
     description: Accepts an additional `options` object to specify whether
@@ -4412,6 +4416,10 @@ completion callback.
 <!-- YAML
 added: v0.0.2
 changes:
+  - version: v25.7.0
+    pr-url: https://github.com/nodejs/node/pull/61178
+    description: Accepts a `throwIfNoEntry` option to specify whether
+                 an exception should be thrown if the entry does not exist.
   - version: v18.0.0
     pr-url: https://github.com/nodejs/node/pull/41678
     description: Passing an invalid callback to the `callback` argument
@@ -7147,8 +7155,8 @@ added: v0.1.93
 
 * Extends: {stream.Readable}
 
-Instances of {fs.ReadStream} are created and returned using the
-[`fs.createReadStream()`][] function.
+Instances of {fs.ReadStream} cannot be constructed directly. They are created and
+returned using the [`fs.createReadStream()`][] function.
 
 #### Event: `'close'`
 
@@ -7918,8 +7926,8 @@ added: v0.1.93
 
 * Extends {stream.Writable}
 
-Instances of {fs.WriteStream} are created and returned using the
-[`fs.createWriteStream()`][] function.
+Instances of {fs.WriteStream} cannot be constructed directly. They are created and
+returned using the [`fs.createWriteStream()`][] function.
 
 #### Event: `'close'`
 

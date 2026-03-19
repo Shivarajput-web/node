@@ -829,22 +829,35 @@ channels.traceSync(() => {
 added:
  - v19.9.0
  - v18.19.0
+changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/61766
+    description: Custom thenables will no longer be wrapped in native Promises.
+                 Non-thenables will be returned with a warning.
 -->
 
-* `fn` {Function} Promise-returning function to wrap a trace around
+* `fn` {Function} Function to wrap a trace around
 * `context` {Object} Shared object to correlate trace events through
 * `thisArg` {any} The receiver to be used for the function call
 * `...args` {any} Optional arguments to pass to the function
-* Returns: {Promise} Chained from promise returned by the given function
+* Returns: {any} The return value of the given function, or the result of
+  calling `.then(...)` on the return value if the tracing channel has active
+  subscribers. If the return value is not a Promise or thenable, then
+  it is returned as-is and a warning is emitted.
 
-Trace a promise-returning function call. This will always produce a
-[`start` event][] and [`end` event][] around the synchronous portion of the
-function execution, and will produce an [`asyncStart` event][] and
-[`asyncEnd` event][] when a promise continuation is reached. It may also
-produce an [`error` event][] if the given function throws an error or the
-returned promise rejects. This will run the given function using
+Trace an asynchronous function call which returns a {Promise} or
+[thenable object][]. This will always produce a [`start` event][] and
+[`end` event][] around the synchronous portion of the function execution, and
+will produce an [`asyncStart` event][] and [`asyncEnd` event][] when the
+returned promise is resolved or rejected. It may also produce an
+[`error` event][] if the given function throws an error or the returned promise
+is rejected. This will run the given function using
 [`channel.runStores(context, ...)`][] on the `start` channel which ensures all
 events should have any bound stores set to match this trace context.
+
+If the value returned by `fn` is not a Promise or thenable, then it will be
+returned with a warning, and no `asyncStart` or `asyncEnd` events will be
+produced.
 
 To ensure only correct trace graphs are formed, events will only be published
 if subscribers are present prior to starting the trace. Subscriptions which are
@@ -1447,6 +1460,50 @@ Emitted when [`child_process.spawn()`][] encounters an error.
 
 Emitted when [`process.execve()`][] is invoked.
 
+#### Web Locks
+
+> Stability: 1 - Experimental
+
+<!-- YAML
+added: REPLACEME
+-->
+
+These channels are emitted for each [`locks.request()`][] call. See
+[`worker_threads.locks`][] for details on Web Locks.
+
+##### Event: `'locks.request.start'`
+
+* `name` {string} The name of the requested lock resource.
+* `mode` {string} The lock mode: `'exclusive'` or `'shared'`.
+
+Emitted when a lock request is initiated, before the lock is granted.
+
+##### Event: `'locks.request.grant'`
+
+* `name` {string} The name of the requested lock resource.
+* `mode` {string} The lock mode: `'exclusive'` or `'shared'`.
+
+Emitted when a lock is successfully granted and the callback is about to run.
+
+##### Event: `'locks.request.miss'`
+
+* `name` {string} The name of the requested lock resource.
+* `mode` {string} The lock mode: `'exclusive'` or `'shared'`.
+
+Emitted when `ifAvailable` is `true` and the lock is not immediately available,
+and the request callback is invoked with `null` instead of a `Lock` object.
+
+##### Event: `'locks.request.end'`
+
+* `name` {string} The name of the requested lock resource.
+* `mode` {string} The lock mode: `'exclusive'` or `'shared'`.
+* `steal` {boolean} Whether the request uses steal semantics.
+* `ifAvailable` {boolean} Whether the request uses ifAvailable semantics.
+* `error` {Error|undefined} The error thrown by the callback, if any.
+
+Emitted when a lock request has finished, whether the callback succeeded,
+threw an error, or the lock was stolen.
+
 #### Worker Thread
 
 > Stability: 1 - Experimental
@@ -1476,7 +1533,10 @@ Emitted when a new thread is created.
 [`diagnostics_channel.tracingChannel()`]: #diagnostics_channeltracingchannelnameorchannels
 [`end` event]: #endevent
 [`error` event]: #errorevent
+[`locks.request()`]: worker_threads.md#locksrequestname-options-callback
 [`net.Server.listen()`]: net.md#serverlisten
 [`process.execve()`]: process.md#processexecvefile-args-env
 [`start` event]: #startevent
+[`worker_threads.locks`]: worker_threads.md#worker_threadslocks
 [context loss]: async_context.md#troubleshooting-context-loss
+[thenable object]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#thenables
